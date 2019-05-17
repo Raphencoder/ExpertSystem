@@ -1,6 +1,11 @@
 import sys
 import re
 
+def make_a_dict(rules):
+    rules_in_dict = {}
+    for elem in rules:
+        rules_in_dict[elem[-1]] = elem[:-3]
+    return rules_in_dict
 
 class Parsing:
 
@@ -56,6 +61,14 @@ class Parsing:
         self.parse_wanted_letters()
         self.true_letters = self.parse(self.true_letters_index)
         self.rules_clean = self.rules_clean[:-2]
+        self.rules_clean = make_a_dict(self.rules_clean)
+        print(self.rules_clean)
+
+def parse_equation(eq):
+    left = eq[0]
+    op = eq[1]
+    right = eq[2]
+    return left, right, op
 
 
 
@@ -68,13 +81,13 @@ class Rule:
 
     def solve(self):
         if self.operator == "+":
-            if len(self.right) > 2:
-                return solve(self.right) and solve(self.left)
+            return self.left + self.right
         if self.operator == "|":
             return self.right or self.left
         if self.operator == "^":
             return self.right ^ self.left
 
+grid = {}
 
 class ExpertSystem(Parsing):
 
@@ -82,20 +95,33 @@ class ExpertSystem(Parsing):
         super().__init__()
         self.seen_letters = []
         self.wanted_letter = letter
-
-
-    def resolver(self):
+        self.knowed_letters = []
         self.parse_true_letters()
+
+    def resolver(self, letter, blacklist=-1):
         for i, elem in enumerate(self.rules_clean):
-            if self.wanted_letter in elem:
+            if letter in elem and i != blacklist:
                 index = i
+        eq = self.rules_clean[i]
+        tup = parse_equation(eq)
+        if tup[0] in grid:
+            tup[0] = grid[tup[0]].solve()
+        else:
+            print(self.rules_clean, eq, blacklist)
+            self.resolver(tup[0], index)
+        if tup[1] in grid:
+            tup[1] = grid[tup[1]].solve()
+        else:
+            self.resolver(tup[1], index)
         print(self.rules_clean)
+
+
 
 def main():
     p = Parsing()
     p.parse_true_letters()
-    exp = ExpertSystem(p.wanted_letters[0])
-    exp.resolver()
+    # exp = ExpertSystem(p.wanted_letters[0])
+    # exp.resolver(p.wanted_letters[0])
 
 if __name__ == "__main__":
     main()
