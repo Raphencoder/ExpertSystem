@@ -120,7 +120,7 @@ class ExpertSystem(Parsing):
 def main():
     p = Parsing()
     p.parse_true_letters()
-    # exp = ExpertSystem(p.wanted_letters[0])
+    exp = ExpertSystem(p.wanted_letters[0])
     # exp.resolver(p.wanted_letters[0])
 
 if __name__ == "__main__":
