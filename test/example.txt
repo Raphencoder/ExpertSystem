@@ -1,6 +1,8 @@
-A | B | C           => D
-A + B + !C          => E
-G | A               => C
-D + E               => F
-=AB
-?F
+A + C			=> !B
+A + F			=> G
+B | G			=> E
+C + D + E		=> F
+A ^ !(E | C)	=> F
+A + D           => !F
+=ACD
+?BGEF

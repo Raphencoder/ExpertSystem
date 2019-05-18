@@ -4,6 +4,7 @@ import re
 def make_a_dict(rules):
     rules_in_dict = {}
     for elem in rules:
+        print(elem)
         if elem[-1] in rules_in_dict:
             rules_in_dict[elem[-1]].append(elem[:-3])
         else:
@@ -88,7 +89,9 @@ class ExpertSystem(Parsing):
     def solve(self, left, right, operator):
         print("The real one:{} {} {}".format(left, operator, right))
         if operator == "+":
-            return left + right
+            if left + right == 1:
+                return True
+            return False
         if operator == "|":
             return right or left
         if operator == "^":
@@ -145,48 +148,7 @@ class ExpertSystem(Parsing):
             t = self.parsing(self.rules_clean[letter])
             print(t)
             return t
-            # else:
-            #     print(self.rules_clean, eq, blacklist)
-            #     self.resolver(tup[0], index)
-            # if tup[1] in grid:
-            #     tup[1] = grid[tup[1]].solve()
-            # else:
-            #     self.resolver(tup[1], index)
-            # print(self.rules_clean)
-#
-# class Rule(ExpertSystem):
-#
-#     def __init__(self, equation, letter):
-#         super().__init__(letter)
-#         self.equation = equation
-#
-#
-#     def solve(self, left, right, operator):
-#         if operator == "+":
-#             return left + right
-#         if operator == "|":
-#             return right or left
-#         if operator == "^":
-#             return right ^ left
-#
-#     def parse(self, equations):
-#         print(equations)
-#         equation = equations[0]
-#         self.left = equation[0]
-#         if self.left in self.true_letters:
-#             self.left = True
-#         elif self.left in self.rules_clean:
-#             self.left = self.resolver(self.left)
-#         print(equation)
-#         self.operator = equation[1]
-#         self.right = equation[2:]
-#         if len(self.right) > 1:
-#             return self.solve(self.left, self.parse(equation[2:]))
-#         if self.right in self.true_letters:
-#             self.right = True
-#         if self.right in self.rules_clean:
-#             self.right = self.resolver(self.right)
-#         self.solve(self.left, self.right, self.operator)
+
 
 
 def main():

@@ -1,0 +1,6 @@
+G ^ H               => B
+A + B + (C | D)     => E
+E | C               => F
+F + B + E           => Z
+=GAC
+?ABCDEFGHZ
