@@ -128,7 +128,7 @@ class ExpertSystem(Parsing):
 
     def parsing(self, equations):
         """
-        The purpose of this function is to take to element of an equation(A+B):
+        The purpose of this function is to take two element of an equation(A+B):
         left part (A) and right part(B)
         """
         print("Beginning parsing with this equation: {}".format(equations[0]))
