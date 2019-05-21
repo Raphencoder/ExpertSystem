@@ -143,6 +143,8 @@ class ExpertSystem(Parsing):
 
     def resolver(self, letter):
         print("resolver active for this letter {}".format(letter))
+        if letter in self.true_letters:
+            return True
         if letter in self.rules_clean:
             self.equation = self.rules_clean[letter]
             t = self.parsing(self.rules_clean[letter])
@@ -155,7 +157,9 @@ def main():
 
     exp = ExpertSystem()
     print(exp.rules_clean)
-    exp.resolver(exp.wanted_letters[0])
-
+    result = []
+    for elem in exp.wanted_letters:
+        result.append(exp.resolver(elem))
+    print("The result is: {}".format(result))
 if __name__ == "__main__":
     main()
