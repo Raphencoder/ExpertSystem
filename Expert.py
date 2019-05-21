@@ -2,9 +2,16 @@ import sys
 import re
 
 def make_a_dict(rules):
+    """
+    rules looks like this :
+    ['G^H=>B', 'A+B+(C|D)=>E', 'E|C=>F', 'F+B+E=>Z']
+
+    make_a_dict make it like this :
+    {'B': ['G^H'], 'E': ['A+B+(C|D)'], 'F': ['E|C'], 'Z': ['F+B+E']}
+    """
+    print(rules)
     rules_in_dict = {}
     for elem in rules:
-        print(elem)
         if elem[-1] in rules_in_dict:
             rules_in_dict[elem[-1]].append(elem[:-3])
         else:
@@ -12,6 +19,10 @@ def make_a_dict(rules):
     return rules_in_dict
 
 class Parsing:
+    """
+    This class parse the text into a structured dict and parse the
+    wanted_letters, the true_letters ...
+    """
 
     def __init__(self):
 
@@ -38,6 +49,9 @@ class Parsing:
         return parses
 
     def take_the_data(self):
+        """
+        First fonction called
+        """
         index = 0
         for elem in sys.argv:
             index += 1
@@ -67,15 +81,6 @@ class Parsing:
         self.rules_clean = self.rules_clean[:-2]
         self.rules_clean = make_a_dict(self.rules_clean)
 
-def parse_equation(eq):
-    left = eq[0]
-    op = eq[1]
-    right = eq[2]
-    return left, right, op
-
-
-
-
 
 class ExpertSystem(Parsing):
 
@@ -98,6 +103,10 @@ class ExpertSystem(Parsing):
             return right ^ left
 
     def take_part(self, part, equation):
+        """
+        This function return True or False.
+        Check what is the bool() of the part sent in argument.
+        """
         if part in self.true_letters:
             part = True
             if self.invert:
@@ -112,18 +121,31 @@ class ExpertSystem(Parsing):
         return part
 
     def parsing(self, equations):
+        """
+        The purpose of this function is to take to element of an equation(A+B):
+        left part (A) and right part(B)
+        """
         print("Beginning parsing with this equation: {}".format(equations[0]))
         equation = equations[0]
         self.left = equation[0]
         self.invert = 0
         if self.left == "!":
+            """
+            if equation type of !A + B
+            """
             self.left = equation[1]
             equation = equation[1:]
             self.invert = 1
+
         self.left = self.take_part(self.left, equation)
         print("self.left is equal to {}".format(self.left))
         self.operator = equation[1]
         self.right = equation[2:]
+        """
+        self.right can be just "B" from equation "A + B" where "B" is the rigth
+        part OR can be "B + C | D" from equation "A + B + C | D" where "A" is
+        the left side and "B + C | D" the rigth side
+        """
         print(self.right)
         if len(self.right) > 1:
             if self.right[0] == "!" and len(self.right) == 2:
@@ -131,6 +153,10 @@ class ExpertSystem(Parsing):
                 equation = equation[3:]
                 self.invert = 1
             else:
+                """
+                if right part is "B + C | D", we need to parse it again so
+                calling parsing again
+                """
                 t =  self.solve(self.left, self.parsing([equation[2:]]), self.operator)
                 print(t)
                 return t
