@@ -83,6 +83,12 @@ class Parsing:
 
 
 class ExpertSystem(Parsing):
+    """
+    ExpertSystem is a class allow to resolve boolean equation.
+    It will take the equation and resolve it from left to right, searching
+    for unknown letter everytime it seen one.
+    """
+
 
     def __init__(self):
         super().__init__()
@@ -187,5 +193,6 @@ def main():
     for elem in exp.wanted_letters:
         result.append(exp.resolver(elem))
     print("The result is: {}".format(result))
+
 if __name__ == "__main__":
     main()
