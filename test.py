@@ -89,7 +89,7 @@ class ExpertSystem(Parsing):
         for i, elem in enumerate(self.rules_clean):
             if self.wanted_letter in elem:
                 index = i
-        print(self.rules_clean)
+
 
 def main():
     p = Parsing()
