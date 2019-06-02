@@ -158,6 +158,7 @@ class ExpertSystem(Parsing):
         self.operators = ["+", "|", "^"]
         self.parse_true_letters()
         self.left = []
+        self.invert = 0
 
     def solve(self, left, right, operator):
         print("The real one:{} {} {}".format(left, operator, right))
@@ -170,11 +171,13 @@ class ExpertSystem(Parsing):
         if operator == "^":
             return right ^ left
 
-    def take_part(self, part, equation):
+    def take_part(self, part):
         """
         This function return True or False.
         Check what is the bool() of the part sent in argument.
         """
+        if part == True or part == False:
+            return part
         if part in self.true_letters:
             part = True
             if self.invert:
@@ -193,29 +196,15 @@ class ExpertSystem(Parsing):
         The purpose of this function is to take two element of an equation(A+B):
         left part (A) and right part(B)
         """
-        print("Beginning parsing with this equation: {}".format(equation[0]))
-        # equation = equation[0]
-        # self.left = equation[0]
-        self.invert = 0
-        # if self.left == "!":
-        #     """
-        #     if equation type of !A + B
-        #     """
-        #     self.left = equation[1]
-        #     equation = equation[1:]
-        #     self.invert = 1
-        #
-        # self.left = self.take_part(self.left, equation)
-        # print("self.left is equal to {}".format(self.left))
-        # self.operator = equation[1]
-        # self.right = equation[2:]
-        stack = []
+        print("Beginning parsing with this equation: {}".format(equation))
         flag = 0
+        stack = []
         need_to_parse = 0
         for idx, letter in enumerate(equation):
-            if letter in self.operators:
-                if not self.left:
-                    self.left = stack[-2]
+            if letter == True or letter == False:
+                stack.append(letter)
+            elif letter in self.operators:
+                self.left = stack[-2]
                 self.right = stack[-1]
                 self.operator = letter
                 if idx + 1 < len(equation):
@@ -231,20 +220,14 @@ class ExpertSystem(Parsing):
                         stack.append(letter)
                     else:
                         flag = 0
-
-        print("left {}\nright {}\noperator {}".format(self.left, self.right, self.operator))
-        self.left = self.take_part(self.left, equation)
-        print("self.left is equal to {}".format(self.left))
-        # print(self.right)
+        print("left: {}\nright: {}\noperator: {}".format(self.left, self.right, self.operator))
+        self.left = self.take_part(self.left)
+        self.right = self.take_part(self.right)
         if need_to_parse:
-                t =  self.solve(self.left, self.parsing([equation[idx:]]), self.operator)
-                print(t)
-                return t
-        self.right = self.take_part(self.right, equation)
-        print("self.right is equal to {}".format(self.right))
-        t =  self.solve(self.left, self.right, self.operator)
-        print(t)
-        return t
+            equation = [self.solve(self.left, self.right, self.operator)] + equation[need_to_parse:]
+            print("the new equation {}".format(equation))
+            self.parsing(equation)
+        return self.solve(self.left, self.right, self.operator)
 
 
     def resolver(self, letter):
