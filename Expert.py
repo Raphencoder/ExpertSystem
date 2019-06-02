@@ -203,6 +203,7 @@ class ExpertSystem(Parsing):
         stack = []
         need_to_parse = 0
         for idx, letter in enumerate(equation):
+            print(stack)
             if letter == True or letter == False:
                 stack.append(letter)
             elif letter in self.operators:
@@ -222,16 +223,8 @@ class ExpertSystem(Parsing):
                         stack.append(letter)
                     else:
                         flag = 0
-        print("HERRRE : {}".format(need_to_parse))
         print("left: {}\nright: {}\noperator: {}".format(left, right, self.operator))
-        cl = left
-        print(cl)
-        if cl == "D":
-            print(right)
         left = self.take_part(left)
-        if cl == "D":
-            print("End of RESOOOLVE")
-            print(right)
         right = self.take_part(right)
         if need_to_parse:
             equation = [self.solve(left, right, self.operator)] + equation[need_to_parse:]
