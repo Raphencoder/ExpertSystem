@@ -18,6 +18,64 @@ def make_a_dict(rules):
             rules_in_dict[elem[-1]] = [elem[:-3]]
     return rules_in_dict
 
+
+class ShuntingYard:
+
+    def __init__(self, expression):
+        self.expression = expression
+        self.final = []
+        # self.operator = ["+", "|", "^", "!"]
+        self.operator = ["+", "*", "/", "%", "-"]
+        self.brackets = ["(", ")"]
+        # self.priority = {")": 4, "+": 3, "|": 2, "^": 1, "(": 0}
+        self.priority = {")": 3, "*": 2, "/": 2, "%": 2, "+": 1, "-": 1, "(": 0}
+
+    def is_balanced(self):
+        stack = []
+        for letter in self.expression:
+            if letter not in self.operator and not letter.isdigit():
+                if letter not in self.brackets:
+                    raise SyntaxError("unknown letter: {}".format(letter))
+                if letter == "(":
+                    stack.append(letter)
+                elif letter == ")":
+                    if str(stack[-1:]) == "['(']":
+                        stack.pop()
+                    else:
+                        raise SyntaxError("The expression is not balanced")
+        if stack:
+            raise SyntaxError("The expression is not balanced")
+        return True
+
+    def converting(self):
+        stack = []
+        queue = []
+        for letter in self.expression:
+            # print("expression : {}\nletter = {}\nstack : {}\nqueue : {}\n"\
+            # .format(self.expression, letter, stack, queue))
+            if letter not in self.operator and letter not in self.brackets:
+                if not letter.isdigit():
+                    raise SyntaxError("unknown letter: {}".format(letter))
+                queue.append(letter)
+            elif letter in self.brackets:
+                if letter == "(":
+                    stack.append(letter)
+                else:
+                    while str(stack[-1:]) != "['(']":
+                        queue.append(stack[-1])
+                        stack.pop()
+                    stack.pop()
+            elif letter in self.operator and letter != "!":
+                while stack and \
+                self.priority[stack[-1]] >= self.priority[letter]:
+                    queue.append(stack[-1])
+                    stack.pop()
+                stack.append(letter)
+        for elem in stack:
+            queue.append(elem)
+        self.final = queue
+
+
 class Parsing:
     """
     This class parse the text into a structured dict and parse the
@@ -34,6 +92,7 @@ class Parsing:
         self.true_letters_index = -2
         self.symbol = ["=", "?"]
         self.minimal_length = 2
+
 
     def parse(self, index):
         parses = []
@@ -187,12 +246,16 @@ class ExpertSystem(Parsing):
 
 def main():
 
-    exp = ExpertSystem()
-    print(exp.rules_clean)
-    result = []
-    for elem in exp.wanted_letters:
-        result.append(exp.resolver(elem))
-    print("The result is: {}".format(result))
+    # exp = ExpertSystem()
+    # print(exp.rules_clean)
+    # result = []
+    # for elem in exp.wanted_letters:
+    #     result.append(exp.resolver(elem))
+    # print("The result is: {}".format(result))
 
+    sy = ShuntingYard("(5*4+3*)-1")
+    sy.is_balanced()
+    sy.converting()
+    print(sy.final)
 if __name__ == "__main__":
     main()
