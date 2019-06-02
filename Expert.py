@@ -140,6 +140,7 @@ class Parsing:
         self.parse_wanted_letters()
         self.true_letters = self.parse(self.true_letters_index)
         self.rules_clean = self.rules_clean[:-2]
+        print(self.rules_clean)
         self.rules_clean = make_a_dict(self.rules_clean)
 
 
@@ -185,6 +186,7 @@ class ExpertSystem(Parsing):
         elif part in self.rules_clean:
             print("Not knowing this letter {}, go resolver".format(part))
             part = self.resolver(part)
+            print("ENDING HERE THE RESULT {}".format(part))
         else:
             part = False
             if self.invert:
@@ -204,8 +206,8 @@ class ExpertSystem(Parsing):
             if letter == True or letter == False:
                 stack.append(letter)
             elif letter in self.operators:
-                self.left = stack[-2]
-                self.right = stack[-1]
+                left = stack[-2]
+                right = stack[-1]
                 self.operator = letter
                 if idx + 1 < len(equation):
                     need_to_parse = idx + 1
@@ -220,14 +222,22 @@ class ExpertSystem(Parsing):
                         stack.append(letter)
                     else:
                         flag = 0
-        print("left: {}\nright: {}\noperator: {}".format(self.left, self.right, self.operator))
-        self.left = self.take_part(self.left)
-        self.right = self.take_part(self.right)
+        print("HERRRE : {}".format(need_to_parse))
+        print("left: {}\nright: {}\noperator: {}".format(left, right, self.operator))
+        cl = left
+        print(cl)
+        if cl == "D":
+            print(right)
+        left = self.take_part(left)
+        if cl == "D":
+            print("End of RESOOOLVE")
+            print(right)
+        right = self.take_part(right)
         if need_to_parse:
-            equation = [self.solve(self.left, self.right, self.operator)] + equation[need_to_parse:]
+            equation = [self.solve(left, right, self.operator)] + equation[need_to_parse:]
             print("the new equation {}".format(equation))
-            self.parsing(equation)
-        return self.solve(self.left, self.right, self.operator)
+            return self.parsing(equation)
+        return self.solve(left, right, self.operator)
 
 
     def resolver(self, letter):
