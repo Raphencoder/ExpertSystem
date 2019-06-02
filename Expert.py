@@ -9,13 +9,15 @@ def make_a_dict(rules):
     make_a_dict make it like this :
     {'B': ['G^H'], 'E': ['A+B+(C|D)'], 'F': ['E|C'], 'Z': ['F+B+E']}
     """
-    print(rules)
     rules_in_dict = {}
     for elem in rules:
         if elem[-1] in rules_in_dict:
             rules_in_dict[elem[-1]].append(elem[:-3])
         else:
-            rules_in_dict[elem[-1]] = [elem[:-3]]
+            shunt_yard = ShuntingYard(elem[:-3])
+            shunt_yard.is_balanced()
+            shunt_yard.converting()
+            rules_in_dict[elem[-1]] = shunt_yard.final
     return rules_in_dict
 
 
@@ -24,16 +26,16 @@ class ShuntingYard:
     def __init__(self, expression):
         self.expression = expression
         self.final = []
-        # self.operator = ["+", "|", "^", "!"]
-        self.operator = ["+", "*", "/", "%", "-"]
+        self.operator = ["+", "|", "^", "!"]
+        # self.operator = ["+", "*", "/", "%", "-"]
         self.brackets = ["(", ")"]
-        # self.priority = {")": 4, "+": 3, "|": 2, "^": 1, "(": 0}
-        self.priority = {")": 3, "*": 2, "/": 2, "%": 2, "+": 1, "-": 1, "(": 0}
+        self.priority = {")": 4, "+": 3, "|": 2, "^": 1, "(": 0}
+        # self.priority = {")": 3, "*": 2, "/": 2, "%": 2, "+": 1, "-": 1, "(": 0}
 
     def is_balanced(self):
         stack = []
         for letter in self.expression:
-            if letter not in self.operator and not letter.isdigit():
+            if letter not in self.operator and not letter.isupper():
                 if letter not in self.brackets:
                     raise SyntaxError("unknown letter: {}".format(letter))
                 if letter == "(":
@@ -54,7 +56,7 @@ class ShuntingYard:
             # print("expression : {}\nletter = {}\nstack : {}\nqueue : {}\n"\
             # .format(self.expression, letter, stack, queue))
             if letter not in self.operator and letter not in self.brackets:
-                if not letter.isdigit():
+                if not letter.isupper():
                     raise SyntaxError("unknown letter: {}".format(letter))
                 queue.append(letter)
             elif letter in self.brackets:
@@ -153,8 +155,9 @@ class ExpertSystem(Parsing):
         super().__init__()
         self.seen_letters = []
         self.knowed_letters = []
+        self.operators = ["+", "|", "^"]
         self.parse_true_letters()
-
+        self.left = []
 
     def solve(self, left, right, operator):
         print("The real one:{} {} {}".format(left, operator, right))
@@ -185,44 +188,56 @@ class ExpertSystem(Parsing):
                 part = True
         return part
 
-    def parsing(self, equations):
+    def parsing(self, equation):
         """
         The purpose of this function is to take two element of an equation(A+B):
         left part (A) and right part(B)
         """
-        print("Beginning parsing with this equation: {}".format(equations[0]))
-        equation = equations[0]
-        self.left = equation[0]
+        print("Beginning parsing with this equation: {}".format(equation[0]))
+        # equation = equation[0]
+        # self.left = equation[0]
         self.invert = 0
-        if self.left == "!":
-            """
-            if equation type of !A + B
-            """
-            self.left = equation[1]
-            equation = equation[1:]
-            self.invert = 1
+        # if self.left == "!":
+        #     """
+        #     if equation type of !A + B
+        #     """
+        #     self.left = equation[1]
+        #     equation = equation[1:]
+        #     self.invert = 1
+        #
+        # self.left = self.take_part(self.left, equation)
+        # print("self.left is equal to {}".format(self.left))
+        # self.operator = equation[1]
+        # self.right = equation[2:]
+        stack = []
+        flag = 0
+        need_to_parse = 0
+        for idx, letter in enumerate(equation):
+            if letter in self.operators:
+                if not self.left:
+                    self.left = stack[-2]
+                self.right = stack[-1]
+                self.operator = letter
+                if idx + 1 < len(equation):
+                    need_to_parse = idx + 1
+                break
+            elif letter.isupper() or letter == "!":
+                if letter == "!":
+                    stack.append(letter + equation[idx+1])
+                    self.invert = 1
+                    flag = 1
+                else:
+                    if not flag:
+                        stack.append(letter)
+                    else:
+                        flag = 0
 
+        print("left {}\nright {}\noperator {}".format(self.left, self.right, self.operator))
         self.left = self.take_part(self.left, equation)
         print("self.left is equal to {}".format(self.left))
-        self.operator = equation[1]
-        self.right = equation[2:]
-        """
-        self.right can be just "B" from equation "A + B" where "B" is the rigth
-        part OR can be "B + C | D" from equation "A + B + C | D" where "A" is
-        the left side and "B + C | D" the rigth side
-        """
-        print(self.right)
-        if len(self.right) > 1:
-            if self.right[0] == "!" and len(self.right) == 2:
-                self.right = self.right[1]
-                equation = equation[3:]
-                self.invert = 1
-            else:
-                """
-                if right part is "B + C | D", we need to parse it again so
-                calling parsing again
-                """
-                t =  self.solve(self.left, self.parsing([equation[2:]]), self.operator)
+        # print(self.right)
+        if need_to_parse:
+                t =  self.solve(self.left, self.parsing([equation[idx:]]), self.operator)
                 print(t)
                 return t
         self.right = self.take_part(self.right, equation)
@@ -238,7 +253,7 @@ class ExpertSystem(Parsing):
             return True
         if letter in self.rules_clean:
             self.equation = self.rules_clean[letter]
-            t = self.parsing(self.rules_clean[letter])
+            t = self.parsing(self.equation)
             print(t)
             return t
 
@@ -246,16 +261,16 @@ class ExpertSystem(Parsing):
 
 def main():
 
-    # exp = ExpertSystem()
-    # print(exp.rules_clean)
-    # result = []
-    # for elem in exp.wanted_letters:
-    #     result.append(exp.resolver(elem))
-    # print("The result is: {}".format(result))
+    exp = ExpertSystem()
+    print(exp.rules_clean)
+    result = []
+    for elem in exp.wanted_letters:
+        result.append(exp.resolver(elem))
+    print("The result is: {}".format(result))
 
-    sy = ShuntingYard("(5*4+3*)-1")
-    sy.is_balanced()
-    sy.converting()
-    print(sy.final)
+    # sy = ShuntingYard("(5*4+3*)-1")
+    # sy.is_balanced()
+    # sy.converting()
+    # print(sy.final)
 if __name__ == "__main__":
     main()
