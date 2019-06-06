@@ -164,9 +164,8 @@ class ExpertSystem(Parsing):
     def solve(self, left, right, operator):
         print("The real one:{} {} {}".format(left, operator, right))
         if operator == "+":
-            if left + right == 1:
-                return True
-            return False
+            print(left and right)
+            return left and right
         if operator == "|":
             return right or left
         if operator == "^":
@@ -186,7 +185,7 @@ class ExpertSystem(Parsing):
         elif part in self.rules_clean:
             print("Not knowing this letter {}, go resolver".format(part))
             part = self.resolver(part)
-            print("ENDING HERE THE RESULT {}".format(part))
+            print("ending here the result {}".format(part))
         else:
             part = False
             if self.invert:
@@ -223,11 +222,15 @@ class ExpertSystem(Parsing):
                         stack.append(letter)
                     else:
                         flag = 0
-        print("left: {}\nright: {}\noperator: {}".format(left, right, self.operator))
+        print("left: {}\nright: {}\noperator: {}\nstack: {}\nequation: {}".format(left, right, self.operator, stack, equation))
         left = self.take_part(left)
         right = self.take_part(right)
         if need_to_parse:
-            equation = [self.solve(left, right, self.operator)] + equation[need_to_parse:]
+            print("stack", stack)
+            if len(stack) > 2:
+                equation = stack[:-2] + [self.solve(left, right, self.operator)] + equation[need_to_parse:]
+            else:
+                equation = [self.solve(left, right, self.operator)] + equation[need_to_parse:]
             print("the new equation {}".format(equation))
             return self.parsing(equation)
         return self.solve(left, right, self.operator)
@@ -252,6 +255,7 @@ def main():
     result = []
     for elem in exp.wanted_letters:
         result.append(exp.resolver(elem))
+        print("FOR THIS LETTER {} THE RESULT IS: {}".format(elem, result[-1]))
     print("The result is: {}".format(result))
 
     # sy = ShuntingYard("(5*4+3*)-1")
