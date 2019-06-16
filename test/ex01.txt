@@ -1,5 +1,5 @@
 (A | B ) | C           => D
 A | (B | C)          => E
-D + E               => F
+!D + E               => F
 =AB
 ?F

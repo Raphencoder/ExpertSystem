@@ -1,6 +1,6 @@
 A | B | C           =>                             D
 A ^ (B + C)          => E
-G | A               => C
+G | A ^ B ^ H + B | B + A | A              => C
 D + E               => F
 =AB
 ?F

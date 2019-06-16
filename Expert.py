@@ -4,8 +4,6 @@ import re
 
 """
 TODO :
-    - ! rule
-    - Parsing space
     - Multiple rules for one letter
 """
 
@@ -58,7 +56,7 @@ class ShuntingYard:
     def __init__(self, expression):
         self.expression = expression
         self.final = []
-        self.operator = ["+", "|", "^", "!"]
+        self.operator = ["+", "|", "^"]
         self.brackets = ["(", ")"]
         self.priority = {")": 4, "+": 3, "|": 2, "^": 1, "(": 0}
 
@@ -66,7 +64,7 @@ class ShuntingYard:
         stack = []
         for letter in self.expression:
             if letter not in self.operator and not letter.isupper():
-                if letter not in self.brackets:
+                if letter not in self.brackets and letter != "!":
                     raise SyntaxError("unknown letter: {}".format(letter))
                 if letter == "(":
                     stack.append(letter)
@@ -82,13 +80,20 @@ class ShuntingYard:
     def converting(self):
         stack = []
         queue = []
+        flag = 0
         for letter in self.expression:
-            # print("expression : {}\nletter = {}\nstack : {}\nqueue : {}\n"\
-            # .format(self.expression, letter, stack, queue))
+            print("expression : {}\nletter = {}\nstack : {}\nqueue : {}\n"\
+            .format(self.expression, letter, stack, queue))
             if letter not in self.operator and letter not in self.brackets:
-                if not letter.isupper():
+                if not letter.isupper() and letter != "!":
                     raise SyntaxError("unknown letter: {}".format(letter))
-                queue.append(letter)
+                if flag:
+                    queue.append("!" + letter)
+                    flag = 0
+                elif letter == "!":
+                    flag = 1
+                else:
+                    queue.append(letter)
             elif letter in self.brackets:
                 if letter == "(":
                     stack.append(letter)
@@ -103,6 +108,7 @@ class ShuntingYard:
                     queue.append(stack[-1])
                     stack.pop()
                 stack.append(letter)
+        stack.reverse()
         for elem in stack:
             queue.append(elem)
         self.final = queue
@@ -208,8 +214,13 @@ class ExpertSystem(Parsing):
         This function return True or False.
         Check what is the bool() of the part sent in argument.
         """
+        flag = 0
         if part == True or part == False:
             return part
+        if part[0] == "!":
+            flag = 1
+            part = part[1]
+            print("OK")
         if part in self.true_letters:
             part = True
             if self.invert:
@@ -222,6 +233,8 @@ class ExpertSystem(Parsing):
             part = False
             if self.invert:
                 part = True
+        if flag:
+            return not part
         return part
 
     def parsing(self, equation):
@@ -242,7 +255,7 @@ class ExpertSystem(Parsing):
             elif letter in self.operators:
                 left = stack[-2]
                 right = stack[-1]
-                self.operator = letter
+                operator = letter
                 if idx + 1 < len(equation):
                     need_to_parse = idx + 1
                 break
@@ -256,24 +269,26 @@ class ExpertSystem(Parsing):
                         stack.append(letter)
                     else:
                         flag = 0
-        print("left: {}\nright: {}\noperator: {}\nstack: {}\nequation: {}".format(left, right, self.operator, stack, equation))
+        print("left: {}\nright: {}\noperator: {}\nstack: {}\nequation: {}".format(left, right, operator, stack, equation))
         left = self.take_part(left)
         right = self.take_part(right)
         if need_to_parse:
             print("stack", stack)
             if len(stack) > 2:
-                equation = stack[:-2] + [self.solve(left, right, self.operator)] + equation[need_to_parse:]
+                equation = stack[:-2] + [self.solve(left, right, operator)] + equation[need_to_parse:]
             else:
-                equation = [self.solve(left, right, self.operator)] + equation[need_to_parse:]
+                equation = [self.solve(left, right, operator)] + equation[need_to_parse:]
             print("the new equation {}".format(equation))
             return self.parsing(equation)
-        return self.solve(left, right, self.operator)
+        return self.solve(left, right, operator)
 
 
     def resolver(self, letter):
         print("resolver active for this letter {}".format(letter))
         if letter in self.true_letters:
             return True
+        if letter not in self.rules_clean.keys():
+            return False
         if letter in self.rules_clean:
             self.equation = self.rules_clean[letter]
             t = self.parsing(self.equation)
@@ -286,10 +301,10 @@ def main():
 
     exp = ExpertSystem()
     print(exp.rules_clean)
-    result = []
+    result = {}
     for elem in exp.wanted_letters:
-        result.append(exp.resolver(elem))
-        print("FOR THIS LETTER {} THE RESULT IS: {}".format(elem, result[-1]))
+        result[elem] = exp.resolver(elem)
+        print("FOR THIS LETTER {} THE RESULT IS: {}".format(elem, result[elem]))
     print("The result is: {}".format(result))
 
     # sy = ShuntingYard("(5*4+3*)-1")
