@@ -1,8 +1,8 @@
-A + C			=> !B
+A + C			=> B
 A + F			=> G
 B | G			=> E
 C + D + E		=> F
-A ^ !(E | C)	=> F
-A + D           => !F
+A ^ (E | C)	=> F
+A + D           => F
 =ACD
 ?BGEF

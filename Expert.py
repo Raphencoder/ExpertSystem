@@ -1,6 +1,15 @@
 import sys
 import re
 
+
+"""
+TODO :
+    - ! rule
+    - Parsing space
+    - Multiple rules for one letter
+"""
+
+
 def make_a_dict(rules):
     """
     rules looks like this :
@@ -20,6 +29,29 @@ def make_a_dict(rules):
             rules_in_dict[elem[-1]] = shunt_yard.final
     return rules_in_dict
 
+def check_data(rules):
+    equal = "=>"
+    symbol = ["!", "*", "+", "^", "|"]
+    parenth = ["(", ")"]
+    flag = 0
+    for elem in rules:
+        if equal not in elem:
+            raise SyntaxError("Not what expected")
+        for letter in elem:
+            if letter not in symbol and\
+            not letter.isupper() and\
+            letter not in parenth and\
+            (letter != "=" and letter != ">"):
+                print(letter)
+                raise SyntaxError("Not what expected")
+            if letter == "=":
+                flag = 1
+            elif flag and letter != ">":
+                print(letter)
+                raise SyntaxError("Not what expected")
+            else:
+                flag = 0
+
 
 class ShuntingYard:
 
@@ -27,10 +59,8 @@ class ShuntingYard:
         self.expression = expression
         self.final = []
         self.operator = ["+", "|", "^", "!"]
-        # self.operator = ["+", "*", "/", "%", "-"]
         self.brackets = ["(", ")"]
         self.priority = {")": 4, "+": 3, "|": 2, "^": 1, "(": 0}
-        # self.priority = {")": 3, "*": 2, "/": 2, "%": 2, "+": 1, "-": 1, "(": 0}
 
     def is_balanced(self):
         stack = []
@@ -98,8 +128,9 @@ class Parsing:
 
     def parse(self, index):
         parses = []
-        if self.rules_clean[index][0] != self.symbol[index]:
-            raise SyntaxError("Need to have '{}' symbol".format(self.true_symbol))
+        if not self.rules_clean[index] or self.rules_clean[index][0] != self.symbol[index]:
+            raise SyntaxError("Need to have '{}' symbol. Newline not accepted"\
+                            .format(self.symbol[index]))
         for idx, letter in enumerate(self.rules_clean[index]):
             if idx == 0:
                 continue
@@ -140,7 +171,8 @@ class Parsing:
         self.parse_wanted_letters()
         self.true_letters = self.parse(self.true_letters_index)
         self.rules_clean = self.rules_clean[:-2]
-        print(self.rules_clean)
+        if check_data(self.rules_clean):
+            raise SyntaxError("Not the rules expected")
         self.rules_clean = make_a_dict(self.rules_clean)
 
 
@@ -198,6 +230,8 @@ class ExpertSystem(Parsing):
         left part (A) and right part(B)
         """
         print("Beginning parsing with this equation: {}".format(equation))
+        if len(equation) == 1:
+            return self.take_part(equation[0])
         flag = 0
         stack = []
         need_to_parse = 0
