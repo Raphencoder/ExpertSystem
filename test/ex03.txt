@@ -1,5 +1,5 @@
 A + B + C + D ^ E + F | Z | A + B => G
-D + Z | A + G => T
-!T => V
+D + Z | A + G => !T
+T => V
 =ACDEF
 ?GTUV

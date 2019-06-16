@@ -4,6 +4,8 @@ import re
 
 """
 TODO :
+    - Contradiction Rules
+    - ! in the result 
     - Multiple rules for one letter
 """
 
