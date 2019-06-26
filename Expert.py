@@ -112,9 +112,7 @@ class Parsing:
         """
         First fonction called
         """
-        index = 0
-        for elem in sys.argv:
-            index += 1
+        index = len(sys.argv)
         if index != 2:
             raise OSError("Need one argument")
         self.filename = sys.argv[1]
