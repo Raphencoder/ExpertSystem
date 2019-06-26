@@ -73,8 +73,7 @@ class ShuntingYard:
                     queue.append(stack[-1])
                     stack.pop()
                 stack.append(letter)
-        for elem in stack:
-            queue.append(elem)
+        queue.extend(stack)
         self.final = queue
 
 
