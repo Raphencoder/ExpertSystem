@@ -3,4 +3,4 @@ A ^ (B + C)          => E
 G | A ^ B ^ H + B | B + A | A              => C
 D + E               => F
 =AB
-?F
+?FC

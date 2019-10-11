@@ -6,7 +6,7 @@ import re
 TODO :
     - Contradiction Rules
     - ! in the result 
-    - Multiple rules for one letter
+    - DONE Multiple rules for one letter
 """
 
 
@@ -20,12 +20,12 @@ def make_a_dict(rules):
     """
     rules_in_dict = {}
     for elem in rules:
+        shunt_yard = ShuntingYard(elem[:-3])
+        shunt_yard.is_balanced()
+        shunt_yard.converting()
         if elem[-1] in rules_in_dict:
-            rules_in_dict[elem[-1]].append(elem[:-3])
+            rules_in_dict[elem[-1] + elem[-1]] = shunt_yard.final
         else:
-            shunt_yard = ShuntingYard(elem[:-3])
-            shunt_yard.is_balanced()
-            shunt_yard.converting()
             rules_in_dict[elem[-1]] = shunt_yard.final
     return rules_in_dict
 
@@ -248,9 +248,12 @@ class ExpertSystem(Parsing):
         need_to_parse = 0
         for idx, letter in enumerate(equation):
             print(stack)
+            print("letter = ", letter)
             if letter == True or letter == False:
+                print("add to stack")
                 stack.append(letter)
             elif letter in self.operators:
+                print("on an operator attributting left and right")
                 left = stack[-2]
                 right = stack[-1]
                 operator = letter
@@ -267,7 +270,10 @@ class ExpertSystem(Parsing):
                         stack.append(letter)
                     else:
                         flag = 0
-        print("left: {}\nright: {}\noperator: {}\nstack: {}\nequation: {}".format(left, right, operator, stack, equation))
+        try:
+            print("left: {}\nright: {}\noperator: {}\nstack: {}\nequation: {}".format(left, right, operator, stack, equation))
+        except UnboundLocalError:
+            pass
         left = self.take_part(left)
         right = self.take_part(right)
         if need_to_parse:
@@ -300,6 +306,15 @@ def main():
     exp = ExpertSystem()
     print(exp.rules_clean)
     result = {}
+    clone = exp.rules_clean
+    for elem in clone:
+        if len(elem) > 1:
+            print("double")
+            res = exp.resolver(elem[0])
+            print("first rule return: ", res)
+            if not res:
+                exp.rules_clean[elem[0]] = exp.rules_clean[elem]
+                print("second rule conquired")               
     for elem in exp.wanted_letters:
         result[elem] = exp.resolver(elem)
         print("FOR THIS LETTER {} THE RESULT IS: {}".format(elem, result[elem]))
