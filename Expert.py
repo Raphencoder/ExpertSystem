@@ -6,7 +6,10 @@ import re
 TODO :
     - Contradiction Rules
     - ! in the result 
-    - DONE Multiple rules for one letter
+    - Multiple rules for one letter
+    - Handlle addiction in answer
+    - Comment 
+    - Ex 6 error
 """
 
 

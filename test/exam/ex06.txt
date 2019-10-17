@@ -1,0 +1,8 @@
+A | B + C => E 
+(F | G) + H => E 
+=BC
+?E 
+
+# With =A, E should be true. 
+# With =AC, E should be false. 
+# With =BC, E should be true. 
