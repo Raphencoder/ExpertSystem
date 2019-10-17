@@ -20,13 +20,22 @@ def make_a_dict(rules):
     """
     rules_in_dict = {}
     for elem in rules:
-        shunt_yard = ShuntingYard(elem[:-3])
+        if elem[-2] == "!":
+            shunt_yard = ShuntingYard(elem[:-4])
+        else:
+            shunt_yard = ShuntingYard(elem[:-3])
         shunt_yard.is_balanced()
         shunt_yard.converting()
-        if elem[-1] in rules_in_dict:
-            rules_in_dict[elem[-1] + elem[-1]] = shunt_yard.final
+        if elem[-2] == "!":
+            if elem[-2:] in rules_in_dict:
+                rules_in_dict[elem[-2:] + elem[-1]] = shunt_yard.final
+            else:
+                rules_in_dict[elem[-1]] = shunt_yard.final
         else:
-            rules_in_dict[elem[-1]] = shunt_yard.final
+            if elem[-1] in rules_in_dict:
+                rules_in_dict[elem[-1] + elem[-1]] = shunt_yard.final
+            else:
+                rules_in_dict[elem[-1]] = shunt_yard.final
     return rules_in_dict
 
 def check_data(rules):
@@ -298,7 +307,6 @@ class ExpertSystem(Parsing):
             t = self.parsing(self.equation)
             print(t)
             return t
-
 
 
 def main():
