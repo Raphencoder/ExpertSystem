@@ -8,3 +8,6 @@ O + P => L + N
 N => M 
 =DEIJOP
 ?AFKP 
+
+# With =DEIJOP, AFKP is true. 
+# With =DEIJP, AFP is true, K is false. 
