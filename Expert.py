@@ -1,17 +1,26 @@
 import sys
 import re
-
+comment_char  = '#'
 
 """
 TODO :
     - Contradiction Rules
     - ! in the result 
     - Multiple rules for one letter
-    - Handlle addiction in answer
+    - Handlle addition in answer
     - Comment 
     - Ex 6 error
 """
 
+def rm_comment_newline(rules):
+    clean_rules = []
+    for elem in rules:
+        no_comment_part = elem.split(comment_char)[0]
+        if comment_char in elem and no_comment_part:
+            clean_rules.append(no_comment_part)
+        elif elem and comment_char not in elem:
+            clean_rules.append(elem)
+    return clean_rules
 
 def make_a_dict(rules):
     """
@@ -40,6 +49,8 @@ def make_a_dict(rules):
             else:
                 rules_in_dict[elem[-1]] = shunt_yard.final
     return rules_in_dict
+
+
 
 def check_data(rules):
     equal = "=>"
@@ -136,6 +147,7 @@ class Parsing:
 
         self.rules = []
         self.rules_clean = []
+        self.rules_clean_comment = []
         self.wanted_letters = []
         self.true_letters = []
         self.wanted_letters_index = -1
@@ -175,9 +187,11 @@ class Parsing:
     def clean(self):
         self.take_the_data()
         for elem in self.rules:
-            self.rules_clean.append(re.sub("[ \t\n]", '', elem))
-        if len(self.rules_clean) < self.minimal_length:
+            self.rules_clean_comment.append(re.sub("[ \t\n]", '', elem))
+        if len(self.rules_clean_comment) < self.minimal_length:
             raise SyntaxError("wrong file format")
+        self.rules_clean = rm_comment_newline(self.rules_clean_comment)
+        print(self.rules_clean)
 
     def parse_wanted_letters(self):
         self.clean()
