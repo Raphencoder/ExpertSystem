@@ -8,7 +8,6 @@ TODO :
     - ! in the result 
     - Multiple rules for one letter
     - Handlle addition in answer
-    - Comment 
     - Ex 6 error
 """
 
@@ -133,7 +132,7 @@ class ShuntingYard:
                     queue.append(stack[-1])
                     stack.pop()
                 stack.append(letter)
-        queue.extend(stack)
+        queue.extend(stack[::-1])
         self.final = queue
 
 
