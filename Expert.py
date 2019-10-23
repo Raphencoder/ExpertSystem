@@ -34,16 +34,11 @@ def make_a_dict(rules):
     for elem in rules:
         first_part = elem.split("=>")[0]
         result_part = elem.split("=>")[1]
-        # print(elem[:-3])
-        # if elem[-2] == "!":
-        #     shunt_yard = ShuntingYard(elem[:-4])
-        # else:
-        #     shunt_yard = ShuntingYard(elem[:-3])
         shunt_yard = ShuntingYard(first_part)
         shunt_yard.is_balanced()
         shunt_yard.converting()
         if result_part in rules_in_dict:
-            rules_in_dict[elem[-2:] + elem[-1]] = shunt_yard.final
+            rules_in_dict[result_part + result_part] = shunt_yard.final
         else:
             rules_in_dict[result_part] = shunt_yard.final
     return rules_in_dict
@@ -114,8 +109,8 @@ class ShuntingYard:
         queue = []
         flag = 0
         for letter in self.expression:
-            print("expression : {}\nletter = {}\nstack : {}\nqueue : {}\n"\
-            .format(self.expression, letter, stack, queue))
+            # print("expression : {}\nletter = {}\nstack : {}\nqueue : {}\n"\
+            # .format(self.expression, letter, stack, queue))
             if letter not in self.operator and letter not in self.brackets:
                 if not letter.isupper() and letter != "!":
                     raise SyntaxError("unknown letter: {}".format(letter))
@@ -198,7 +193,6 @@ class Parsing:
         if len(self.rules_clean_comment) < self.minimal_length:
             raise SyntaxError("wrong file format")
         self.rules_clean = rm_comment_newline(self.rules_clean_comment)
-        print(self.rules_clean)
 
     def parse_wanted_letters(self):
         self.clean()
@@ -211,6 +205,8 @@ class Parsing:
         if check_data(self.rules_clean):
             raise SyntaxError("Not the rules expected")
         self.rules_clean = make_a_dict(self.rules_clean)
+     
+
 
 
 class ExpertSystem(Parsing):
@@ -231,9 +227,8 @@ class ExpertSystem(Parsing):
         self.invert = 0
 
     def solve(self, left, right, operator):
-        print("The real one:{} {} {}".format(left, operator, right))
+        print("The operation is:{} {} {}".format(left, operator, right))
         if operator == "+":
-            print(left and right)
             return left and right
         if operator == "|":
             return right or left
@@ -251,15 +246,15 @@ class ExpertSystem(Parsing):
         if part[0] == "!":
             flag = 1
             part = part[1]
-            print("OK")
         if part in self.true_letters:
             part = True
             if self.invert:
                 part = False
         elif part in self.rules_clean:
             print("Not knowing this letter {}, go resolver".format(part))
-            part = self.resolver(part)
-            print("ending here the result {}".format(part))
+            letter = part
+            part = self.resolver(letter)
+            print("For the letter {} the result is {}".format(letter, part))
         else:
             part = False
             if self.invert:
@@ -273,20 +268,20 @@ class ExpertSystem(Parsing):
         The purpose of this function is to take two element of an equation(A+B):
         left part (A) and right part(B)
         """
-        print("Beginning parsing with this equation: {}".format(equation))
+        # print("Beginning parsing with this equation: {}".format(equation))
         if len(equation) == 1:
             return self.take_part(equation[0])
         flag = 0
         stack = []
         need_to_parse = 0
         for idx, letter in enumerate(equation):
-            print(stack)
-            print("letter = ", letter)
+            # print(stack)
+            # print("letter = ", letter)
             if letter == True or letter == False:
-                print("add to stack")
+                # print("add to stack")
                 stack.append(letter)
             elif letter in self.operators:
-                print("on an operator attributting left and right")
+                # print("on an operator attributting left and right")
                 left = stack[-2]
                 right = stack[-1]
                 operator = letter
@@ -303,25 +298,25 @@ class ExpertSystem(Parsing):
                         stack.append(letter)
                     else:
                         flag = 0
-        try:
-            print("left: {}\nright: {}\noperator: {}\nstack: {}\nequation: {}".format(left, right, operator, stack, equation))
-        except UnboundLocalError:
-            pass
+        # try:
+        #     print("left: {}\nright: {}\noperator: {}\nstack: {}\nequation: {}".format(left, right, operator, stack, equation))
+        # except UnboundLocalError:
+        #     pass
         left = self.take_part(left)
         right = self.take_part(right)
         if need_to_parse:
-            print("stack", stack)
+            # print("stack", stack)
             if len(stack) > 2:
                 equation = stack[:-2] + [self.solve(left, right, operator)] + equation[need_to_parse:]
             else:
                 equation = [self.solve(left, right, operator)] + equation[need_to_parse:]
-            print("the new equation {}".format(equation))
+            # print("the new equation {}".format(equation))
             return self.parsing(equation)
         return self.solve(left, right, operator)
 
 
     def resolver(self, letter):
-        print("resolver active for this letter {}".format(letter))
+        print("\nResolver active for this letter {}".format(letter))
         if letter in self.true_letters:
             return True
         if letter not in self.rules_clean.keys() and "!" + letter not in self.rules_clean.keys():
@@ -329,7 +324,6 @@ class ExpertSystem(Parsing):
         if letter in self.rules_clean:
             self.equation = self.rules_clean[letter]
             t = self.parsing(self.equation)
-            print(t)
             return t
         if "!" + letter in self.rules_clean:
             self.equation = self.rules_clean["!" + letter]
@@ -342,7 +336,6 @@ def main():
     exp = ExpertSystem()
     result = {}
     clone = deepcopy(exp.rules_clean)
-    print(exp.rules_clean)
     for elem in clone:
         if len(elem) > 1 and elem[0] == elem[1]:
             print("double")
@@ -351,11 +344,13 @@ def main():
             if not res:
                 exp.rules_clean[elem[0]] = exp.rules_clean[elem]
                 print("second rule conquired")  
-       
+            else:
+                exp.true_letters.append(elem[0])
     for elem in exp.wanted_letters:
+        print("\n\n+++++++++++++++\nLooking for the letter {} starting process".format(elem))
         result[elem] = exp.resolver(elem)
-        print("FOR THIS LETTER {} THE RESULT IS: {}".format(elem, result[elem]))
-    print("The result is: {}".format(result))
+        print("FOR THE LETTER {} THE RESULT IS: {}\n---------------".format(elem, result[elem]))
+    print("\n\n\n\n\n\nThe result is: {}\n\n\n".format(result))
 
 if __name__ == "__main__":
     main()
