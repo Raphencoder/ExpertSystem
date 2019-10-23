@@ -6,10 +6,6 @@ comment_char  = '#'
 """
 TODO :
     - Contradiction Rules
-    - ! in the result 
-    - Multiple rules for one letter
-    - Handlle addition in answer
-    - Ex 6 error
 """
 
 def rm_comment_newline(rules):
@@ -251,10 +247,10 @@ class ExpertSystem(Parsing):
             if self.invert:
                 part = False
         elif part in self.rules_clean:
-            print("Not knowing this letter {}, go resolver".format(part))
+            print("Not knowing letter {}, go resolver".format(part))
             letter = part
             part = self.resolver(letter)
-            print("For the letter {} the result is {}".format(letter, part))
+            print("For letter {} the result is {}".format(letter, part))
         else:
             part = False
             if self.invert:
@@ -316,7 +312,7 @@ class ExpertSystem(Parsing):
 
 
     def resolver(self, letter):
-        print("\nResolver active for this letter {}".format(letter))
+        print("\nResolver active for letter {}".format(letter))
         if letter in self.true_letters:
             return True
         if letter not in self.rules_clean.keys() and "!" + letter not in self.rules_clean.keys():
@@ -347,9 +343,9 @@ def main():
             else:
                 exp.true_letters.append(elem[0])
     for elem in exp.wanted_letters:
-        print("\n\n+++++++++++++++\nLooking for the letter {} starting process".format(elem))
+        print("\n\n+++++++++++++++\nLooking for letter {} starting process".format(elem))
         result[elem] = exp.resolver(elem)
-        print("FOR THE LETTER {} THE RESULT IS: {}\n---------------".format(elem, result[elem]))
+        print("FOR LETTER {} THE RESULT IS: {}\n---------------".format(elem, result[elem]))
     print("\n\n\n\n\n\nThe result is: {}\n\n\n".format(result))
 
 if __name__ == "__main__":
