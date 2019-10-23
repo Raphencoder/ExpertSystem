@@ -1,5 +1,6 @@
 import sys
 import re
+from copy import deepcopy
 comment_char  = '#'
 
 """
@@ -31,22 +32,20 @@ def make_a_dict(rules):
     """
     rules_in_dict = {}
     for elem in rules:
-        if elem[-2] == "!":
-            shunt_yard = ShuntingYard(elem[:-4])
-        else:
-            shunt_yard = ShuntingYard(elem[:-3])
+        first_part = elem.split("=>")[0]
+        result_part = elem.split("=>")[1]
+        # print(elem[:-3])
+        # if elem[-2] == "!":
+        #     shunt_yard = ShuntingYard(elem[:-4])
+        # else:
+        #     shunt_yard = ShuntingYard(elem[:-3])
+        shunt_yard = ShuntingYard(first_part)
         shunt_yard.is_balanced()
         shunt_yard.converting()
-        if elem[-2] == "!":
-            if elem[-2:] in rules_in_dict:
-                rules_in_dict[elem[-2:] + elem[-1]] = shunt_yard.final
-            else:
-                rules_in_dict[elem[-1]] = shunt_yard.final
+        if result_part in rules_in_dict:
+            rules_in_dict[elem[-2:] + elem[-1]] = shunt_yard.final
         else:
-            if elem[-1] in rules_in_dict:
-                rules_in_dict[elem[-1] + elem[-1]] = shunt_yard.final
-            else:
-                rules_in_dict[elem[-1]] = shunt_yard.final
+            rules_in_dict[result_part] = shunt_yard.final
     return rules_in_dict
 
 
@@ -56,7 +55,16 @@ def check_data(rules):
     symbol = ["!", "*", "+", "^", "|"]
     parenth = ["(", ")"]
     flag = 0
-    for elem in rules:
+    clone = deepcopy(rules)
+    for elem in clone:
+        first_part = elem.split("=>")[0]
+        result_part = "".join(elem.split("=>")[1:])
+        if len(result_part) > 2:
+                for e in result_part.split("+"):
+                    if len(e) == 1 or (len(e) == 2 and e[0] == "!"):
+                        rules.append(first_part + "=>" + e)
+                    else:
+                        raise SyntaxError("Not handling this kind of operation")
         if equal not in elem:
             raise SyntaxError("Not what expected")
         for letter in elem:
@@ -316,37 +324,38 @@ class ExpertSystem(Parsing):
         print("resolver active for this letter {}".format(letter))
         if letter in self.true_letters:
             return True
-        if letter not in self.rules_clean.keys():
+        if letter not in self.rules_clean.keys() and "!" + letter not in self.rules_clean.keys():
             return False
         if letter in self.rules_clean:
             self.equation = self.rules_clean[letter]
             t = self.parsing(self.equation)
             print(t)
             return t
+        if "!" + letter in self.rules_clean:
+            self.equation = self.rules_clean["!" + letter]
+            t = self.parsing(self.equation)
+            return not t
 
 
 def main():
 
     exp = ExpertSystem()
-    print(exp.rules_clean)
     result = {}
-    clone = exp.rules_clean
+    clone = deepcopy(exp.rules_clean)
+    print(exp.rules_clean)
     for elem in clone:
-        if len(elem) > 1:
+        if len(elem) > 1 and elem[0] == elem[1]:
             print("double")
             res = exp.resolver(elem[0])
             print("first rule return: ", res)
             if not res:
                 exp.rules_clean[elem[0]] = exp.rules_clean[elem]
-                print("second rule conquired")               
+                print("second rule conquired")  
+       
     for elem in exp.wanted_letters:
         result[elem] = exp.resolver(elem)
         print("FOR THIS LETTER {} THE RESULT IS: {}".format(elem, result[elem]))
     print("The result is: {}".format(result))
 
-    # sy = ShuntingYard("(5*4+3*)-1")
-    # sy.is_balanced()
-    # sy.converting()
-    # print(sy.final)
 if __name__ == "__main__":
     main()
