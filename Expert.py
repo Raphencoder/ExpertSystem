@@ -397,7 +397,7 @@ def main():
     for elem in exp.wanted_letters:
         print("\n\n+++++++++++++++\nLooking for letter {} starting process".format(elem))
         result[elem] = exp.resolver(elem)
-        print("FOR LETTER {} THE RESULT IS: {}\n---------------".format(elem, result[elem]))
+        print("\nFOR LETTER {} THE RESULT IS: {}\n---------------".format(elem, result[elem]))
     print("\n\n\n\n\n\nThe result is: {}\n\n\n".format(result))
 
 if __name__ == "__main__":
