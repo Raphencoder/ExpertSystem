@@ -18,6 +18,20 @@ def rm_comment_newline(rules):
             clean_rules.append(elem)
     return clean_rules
 
+
+def how_many(rules, letter):
+    index = 1
+    while(1):
+        try:
+            rules[letter]
+            index += 1
+            letter = letter + letter
+        except KeyError:
+            break
+    return index
+
+
+
 def make_a_dict(rules):
     """
     rules looks like this :
@@ -34,7 +48,8 @@ def make_a_dict(rules):
         shunt_yard.is_balanced()
         shunt_yard.converting()
         if result_part in rules_in_dict:
-            rules_in_dict[result_part + result_part] = shunt_yard.final
+            nb_times = how_many(rules_in_dict, result_part)
+            rules_in_dict[result_part * nb_times] = shunt_yard.final
         else:
             rules_in_dict[result_part] = shunt_yard.final
     return rules_in_dict
@@ -50,6 +65,8 @@ def check_data(rules):
     for elem in clone:
         first_part = elem.split("=>")[0]
         result_part = "".join(elem.split("=>")[1:])
+        if first_part == result_part:
+            raise SyntaxError("A letter can't be equal to itself")
         if len(result_part) > 2:
                 for e in result_part.split("+"):
                     if len(e) == 1 or (len(e) == 2 and e[0] == "!"):
@@ -106,7 +123,7 @@ class ShuntingYard:
         flag = 0
         for letter in self.expression:
             # print("expression : {}\nletter = {}\nstack : {}\nqueue : {}\n"\
-            # .format(self.expression, letter, stack, queue))
+            #      .format(self.expression, letter, stack, queue))
             if letter not in self.operator and letter not in self.brackets:
                 if not letter.isupper() and letter != "!":
                     raise SyntaxError("unknown letter: {}".format(letter))
@@ -127,7 +144,7 @@ class ShuntingYard:
                     stack.pop()
             elif letter in self.operator and letter != "!":
                 while stack and \
-                self.priority[stack[-1]] >= self.priority[letter]:
+                self.priority[stack[-1]] > self.priority[letter]:
                     queue.append(stack[-1])
                     stack.pop()
                 stack.append(letter)
@@ -219,7 +236,9 @@ class ExpertSystem(Parsing):
         self.knowed_letters = []
         self.operators = ["+", "|", "^"]
         self.parse_true_letters()
+        self.false_letter = []
         self.left = []
+        self.already_check = []
         self.invert = 0
 
     def solve(self, left, right, operator):
@@ -311,20 +330,58 @@ class ExpertSystem(Parsing):
         return self.solve(left, right, operator)
 
 
-    def resolver(self, letter):
+    def resolver(self, letter, double=False):
         print("\nResolver active for letter {}".format(letter))
         if letter in self.true_letters:
             return True
+        if letter in self.false_letter:
+            return False
+        if letter in self.already_check and not double:
+            raise RecursionError("Recursive map please edit the rules")
+        else:
+            self.already_check.append(letter)
+       
         if letter not in self.rules_clean.keys() and "!" + letter not in self.rules_clean.keys():
+            self.false_letter.append(letter)
             return False
         if letter in self.rules_clean:
             self.equation = self.rules_clean[letter]
             t = self.parsing(self.equation)
+            if t:
+                self.true_letters.append(letter)
+            else:
+                self.false_letter.append(letter)
             return t
         if "!" + letter in self.rules_clean:
             self.equation = self.rules_clean["!" + letter]
             t = self.parsing(self.equation)
+            if not t is True:
+                self.true_letters.append(letter)
+            else:
+                self.false_letter.append(letter)      
             return not t
+
+
+def double(clone, exp, double_letter):
+    letter = double_letter[0]
+    rules_for_multiples = []
+    for elem in clone:
+        if letter in elem:
+            rules_for_multiples.append(clone[elem])
+    res = False
+    index = 1
+    while not res:
+        try:
+            exp.rules_clean[letter] = exp.rules_clean[letter * index]
+        except KeyError:
+            exp.false_letter.append(letter)
+            break
+        res = exp.resolver(letter, double=True)
+        if letter in exp.false_letter:
+            exp.false_letter.remove(letter)
+        index += 1
+    if res:
+        exp.true_letters.append(letter)
 
 
 def main():
@@ -332,16 +389,11 @@ def main():
     exp = ExpertSystem()
     result = {}
     clone = deepcopy(exp.rules_clean)
-    for elem in clone:
-        if len(elem) > 1 and elem[0] == elem[1]:
-            print("double")
-            res = exp.resolver(elem[0])
-            print("first rule return: ", res)
-            if not res:
-                exp.rules_clean[elem[0]] = exp.rules_clean[elem]
-                print("second rule conquired")  
-            else:
-                exp.true_letters.append(elem[0])
+    flag = None
+    for i, elem in enumerate(clone):
+        if len(elem) > 1 and elem[0] == elem[1] and flag != elem[0]:
+            flag = elem[0]
+            double(clone, exp, elem)
     for elem in exp.wanted_letters:
         print("\n\n+++++++++++++++\nLooking for letter {} starting process".format(elem))
         result[elem] = exp.resolver(elem)

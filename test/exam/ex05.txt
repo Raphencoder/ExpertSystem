@@ -1,7 +1,7 @@
 B => A 
-C => A 
+C => A
 =BC
-?A 
+?A
 
 # With =, A should be false. 
 # With =B, A should be true. 
